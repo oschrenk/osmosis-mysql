@@ -52,10 +52,10 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`changeset_tags`;
 CREATE TABLE  `api06_test`.`changeset_tags` (
-  `id` bigint(64) NOT NULL,
+  `changeset_id` bigint(64) NOT NULL,
   `k` varchar(255) NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
-  KEY `changeset_tags_id_idx` (`id`)
+  KEY `changeset_tags_id_idx` (`changeset_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -102,11 +102,11 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`current_node_tags`;
 CREATE TABLE  `api06_test`.`current_node_tags` (
-  `id` bigint(64) NOT NULL,
+  `node_id` bigint(64) NOT NULL,
   `k` varchar(255) NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`id`,`k`),
-  CONSTRAINT `current_node_tags_ibfk_1` FOREIGN KEY (`id`) REFERENCES `current_nodes` (`id`)
+  PRIMARY KEY  (`node_id`,`k`),
+  CONSTRAINT `current_node_tags_ibfk_1` FOREIGN KEY (`node_id`) REFERENCES `current_nodes` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -257,11 +257,11 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`current_way_tags`;
 CREATE TABLE  `api06_test`.`current_way_tags` (
-  `id` bigint(64) NOT NULL,
+  `way_id` bigint(64) NOT NULL,
   `k` varchar(255) NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`id`,`k`),
-  CONSTRAINT `current_way_tags_ibfk_1` FOREIGN KEY (`id`) REFERENCES `current_ways` (`id`)
+  PRIMARY KEY  (`way_id`,`k`),
+  CONSTRAINT `current_way_tags_ibfk_1` FOREIGN KEY (`way_id`) REFERENCES `current_ways` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -496,12 +496,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`node_tags`;
 CREATE TABLE  `api06_test`.`node_tags` (
-  `id` bigint(64) NOT NULL,
+  `node_id` bigint(64) NOT NULL,
   `version` bigint(20) NOT NULL,
   `k` varchar(255) NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`id`,`version`,`k`),
-  CONSTRAINT `node_tags_ibfk_1` FOREIGN KEY (`id`, `version`) REFERENCES `nodes` (`id`, `version`)
+  PRIMARY KEY  (`node_id`,`version`,`k`),
+  CONSTRAINT `node_tags_ibfk_1` FOREIGN KEY (`node_id`, `version`) REFERENCES `nodes` (`node_id`, `version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -520,7 +520,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`nodes`;
 CREATE TABLE  `api06_test`.`nodes` (
-  `id` bigint(64) NOT NULL,
+  `node_id` bigint(64) NOT NULL,
   `latitude` int(11) NOT NULL,
   `longitude` int(11) NOT NULL,
   `changeset_id` bigint(20) NOT NULL,
@@ -528,7 +528,7 @@ CREATE TABLE  `api06_test`.`nodes` (
   `timestamp` datetime NOT NULL,
   `tile` int(10) unsigned default NULL,
   `version` bigint(20) NOT NULL,
-  PRIMARY KEY  (`id`,`version`),
+  PRIMARY KEY  (`node_id`,`version`),
   KEY `nodes_timestamp_idx` (`timestamp`),
   KEY `nodes_tile_idx` (`tile`),
   KEY `changeset_id` (`changeset_id`),
@@ -551,15 +551,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`relation_members`;
 CREATE TABLE  `api06_test`.`relation_members` (
-  `id` bigint(64) NOT NULL default '0',
+  `relation_id` bigint(64) NOT NULL default '0',
   `member_type` enum('Node','Way','Relation') NOT NULL default 'Node',
   `member_id` bigint(11) NOT NULL,
   `member_role` varchar(255) NOT NULL default '',
   `version` bigint(20) NOT NULL default '0',
   `sequence_id` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`id`,`version`,`member_type`,`member_id`,`member_role`,`sequence_id`),
+  PRIMARY KEY  (`relation_id`,`version`,`member_type`,`member_id`,`member_role`,`sequence_id`),
   KEY `relation_members_member_idx` (`member_type`,`member_id`),
-  CONSTRAINT `relation_members_ibfk_1` FOREIGN KEY (`id`, `version`) REFERENCES `relations` (`id`, `version`)
+  CONSTRAINT `relation_members_ibfk_1` FOREIGN KEY (`relation_id`, `version`) REFERENCES `relations` (`relation_id`, `version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -578,12 +578,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`relation_tags`;
 CREATE TABLE  `api06_test`.`relation_tags` (
-  `id` bigint(64) NOT NULL default '0',
+  `relation_id` bigint(64) NOT NULL default '0',
   `k` varchar(255) NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
   `version` bigint(20) NOT NULL,
-  PRIMARY KEY  (`id`,`version`,`k`),
-  CONSTRAINT `relation_tags_ibfk_1` FOREIGN KEY (`id`, `version`) REFERENCES `relations` (`id`, `version`)
+  PRIMARY KEY  (`relation_id`,`version`,`k`),
+  CONSTRAINT `relation_tags_ibfk_1` FOREIGN KEY (`relation_id`, `version`) REFERENCES `relations` (`relation_id`, `version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -602,12 +602,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`relations`;
 CREATE TABLE  `api06_test`.`relations` (
-  `id` bigint(64) NOT NULL default '0',
+  `relation_id` bigint(64) NOT NULL default '0',
   `changeset_id` bigint(20) NOT NULL,
   `timestamp` datetime NOT NULL,
   `version` bigint(20) NOT NULL,
   `visible` tinyint(1) NOT NULL default '1',
-  PRIMARY KEY  (`id`,`version`),
+  PRIMARY KEY  (`relation_id`,`version`),
   KEY `relations_timestamp_idx` (`timestamp`),
   KEY `changeset_id` (`changeset_id`),
   CONSTRAINT `relations_ibfk_1` FOREIGN KEY (`changeset_id`) REFERENCES `changesets` (`id`)
@@ -786,13 +786,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`way_nodes`;
 CREATE TABLE  `api06_test`.`way_nodes` (
-  `id` bigint(64) NOT NULL,
+  `way_id` bigint(64) NOT NULL,
   `node_id` bigint(64) NOT NULL,
   `version` bigint(20) NOT NULL,
   `sequence_id` bigint(11) NOT NULL,
-  PRIMARY KEY  (`id`,`version`,`sequence_id`),
+  PRIMARY KEY  (`way_id`,`version`,`sequence_id`),
   KEY `way_nodes_node_idx` (`node_id`),
-  CONSTRAINT `way_nodes_ibfk_1` FOREIGN KEY (`id`, `version`) REFERENCES `ways` (`id`, `version`)
+  CONSTRAINT `way_nodes_ibfk_1` FOREIGN KEY (`way_id`, `version`) REFERENCES `ways` (`way_id`, `version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -811,12 +811,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`way_tags`;
 CREATE TABLE  `api06_test`.`way_tags` (
-  `id` bigint(64) NOT NULL default '0',
+  `way_id` bigint(64) NOT NULL default '0',
   `k` varchar(255) NOT NULL,
   `v` varchar(255) NOT NULL,
   `version` bigint(20) NOT NULL,
-  PRIMARY KEY  (`id`,`version`,`k`),
-  CONSTRAINT `way_tags_ibfk_1` FOREIGN KEY (`id`, `version`) REFERENCES `ways` (`id`, `version`)
+  PRIMARY KEY  (`way_id`,`version`,`k`),
+  CONSTRAINT `way_tags_ibfk_1` FOREIGN KEY (`way_id`, `version`) REFERENCES `ways` (`way_id`, `version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -835,12 +835,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`ways`;
 CREATE TABLE  `api06_test`.`ways` (
-  `id` bigint(64) NOT NULL default '0',
+  `way_id` bigint(64) NOT NULL default '0',
   `changeset_id` bigint(20) NOT NULL,
   `timestamp` datetime NOT NULL,
   `version` bigint(20) NOT NULL,
   `visible` tinyint(1) NOT NULL default '1',
-  PRIMARY KEY  (`id`,`version`),
+  PRIMARY KEY  (`way_id`,`version`),
   KEY `ways_timestamp_idx` (`timestamp`),
   KEY `changeset_id` (`changeset_id`),
   CONSTRAINT `ways_ibfk_1` FOREIGN KEY (`changeset_id`) REFERENCES `changesets` (`id`)
