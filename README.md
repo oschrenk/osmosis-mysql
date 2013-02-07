@@ -342,3 +342,34 @@ and `user_preferences`
 	...
 	`k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
 	...
+
+
+### org.openstreetmap.osmosis.core.OsmosisRuntimeException: Unable to load current relation members. ###
+
+Adter fixing the collation errors I got
+
+	org.openstreetmap.osmosis.core.OsmosisRuntimeException: Unable to load current relation members.
+		at org.openstreetmap.osmosis.apidb.v0_6.ApidbWriter.populateCurrentRelations(ApidbWriter.java:1020)
+		at org.openstreetmap.osmosis.apidb.v0_6.ApidbWriter.populateCurrentTables(ApidbWriter.java:1032)
+		at org.openstreetmap.osmosis.apidb.v0_6.ApidbWriter.complete(ApidbWriter.java:1064)
+		at org.openstreetmap.osmosis.xml.v0_6.XmlReader.run(XmlReader.java:113)
+		at java.lang.Thread.run(Thread.java:722)
+	Caused by: com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Unknown column 'relation_id' in 'field list'
+		at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+		at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+		at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+		at java.lang.reflect.Constructor.newInstance(Constructor.java:525)
+		at com.mysql.jdbc.Util.handleNewInstance(Util.java:411)
+		at com.mysql.jdbc.Util.getInstance(Util.java:386)
+		at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:1053)
+		at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:4074)
+		at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:4006)
+		at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:2468)
+		at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2629)
+		at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2719)
+		at com.mysql.jdbc.PreparedStatement.executeInternal(PreparedStatement.java:2155)
+		at com.mysql.jdbc.PreparedStatement.execute(PreparedStatement.java:1379)
+		at org.openstreetmap.osmosis.apidb.v0_6.ApidbWriter.populateCurrentRelations(ApidbWriter.java:1017)
+		... 4 more
+
+This is inline with the schema changes prefixing the `id` fields with the type. I forgot those the first time around.

@@ -158,14 +158,14 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`current_relation_members`;
 CREATE TABLE  `api06_test`.`current_relation_members` (
-  `id` bigint(64) NOT NULL,
+  `relation_id` bigint(64) NOT NULL,
   `member_type` enum('Node','Way','Relation') NOT NULL default 'Node',
   `member_id` bigint(11) NOT NULL,
   `member_role` varchar(255) NOT NULL default '',
   `sequence_id` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`id`,`member_type`,`member_id`,`member_role`,`sequence_id`),
+  PRIMARY KEY  (`relation_id`,`member_type`,`member_id`,`member_role`,`sequence_id`),
   KEY `current_relation_members_member_idx` (`member_type`,`member_id`),
-  CONSTRAINT `current_relation_members_ibfk_1` FOREIGN KEY (`id`) REFERENCES `current_relations` (`id`)
+  CONSTRAINT `current_relation_members_ibfk_1` FOREIGN KEY (`relation_id`) REFERENCES `current_relations` (`relation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -188,7 +188,7 @@ CREATE TABLE  `api06_test`.`current_relation_tags` (
   `k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`,`k`),
-  CONSTRAINT `current_relation_tags_ibfk_1` FOREIGN KEY (`id`) REFERENCES `current_relations` (`id`)
+  CONSTRAINT `current_relation_tags_ibfk_1` FOREIGN KEY (`id`) REFERENCES `current_relations` (`relation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -207,12 +207,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `api06_test`.`current_relations`;
 CREATE TABLE  `api06_test`.`current_relations` (
-  `id` bigint(64) NOT NULL auto_increment,
+  `relation_id` bigint(64) NOT NULL auto_increment,
   `changeset_id` bigint(20) NOT NULL,
   `timestamp` datetime NOT NULL,
   `visible` tinyint(1) NOT NULL,
   `version` bigint(20) NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`relation_id`),
   KEY `current_relations_timestamp_idx` (`timestamp`),
   KEY `changeset_id` (`changeset_id`),
   CONSTRAINT `current_relations_ibfk_1` FOREIGN KEY (`changeset_id`) REFERENCES `changesets` (`id`)
