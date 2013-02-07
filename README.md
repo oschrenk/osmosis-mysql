@@ -189,3 +189,156 @@ and got
 You have to import a valid schema before you can poulate the database. Unfortunately MySQL is no longer officialy supported, so there is no official schema available.
 
 See above for my attempts to create one.
+
+### Caused by: com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException: Duplicate entry 'krautundrueber' for key 'users_display_name_idx' ###
+
+After I changed some name of columns the imort seemed to work fine.
+
+Executing
+
+	osmosis --read-xml file="bremen.osm.bz2" --write-apidb-0.6 host="127.0.0.1" dbType="mysql" database="api06_test" user="osm" password="osm" validateSchemaVersion=no
+
+works for a while but fails with
+
+	...
+	Caused by: com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException: Duplicate entry 'krautundrueber' for key 'users_display_name_idx'
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:525)
+	at com.mysql.jdbc.Util.handleNewInstance(Util.java:411)
+	at com.mysql.jdbc.Util.getInstance(Util.java:386)
+	at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:1039)
+	at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3609)
+	at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3541)
+	at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:2002)
+	at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2163)
+	at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2624)
+	at com.mysql.jdbc.PreparedStatement.executeInternal(PreparedStatement.java:2127)
+	at com.mysql.jdbc.PreparedStatement.executeUpdate(PreparedStatement.java:2427)
+	at com.mysql.jdbc.PreparedStatement.executeUpdate(PreparedStatement.java:2345)
+	at com.mysql.jdbc.PreparedStatement.executeUpdate(PreparedStatement.java:2330)
+	at org.openstreetmap.osmosis.apidb.v0_6.impl.UserManager.insertUser(UserManager.java:140)
+	... 18 more
+
+On first look on entries look fine. So I had to dive deeper into Osmosis.
+
+I build Osmosis and imported it into Eclipse. Unfortunately the current project layout doesn't allow for launching any task. I had to create a Junit-Test in th `apidb` module, to have access to all plugins.
+
+
+    @Test
+    public void debugDuplicateEntry() {
+    	 Osmosis.run(new String[] {
+    		"--read-xml-0.6",
+    		"/Users/q2web/Downloads/bremen.osm",
+    		"--write-apidb-0.6",
+    		"host=127.0.0.1",
+    		"dbType=mysql",
+    		"database=api06_test",
+    		"user=osm",
+    		"password=osm",
+    		"validateSchemaVersion=no"
+    	});
+    }
+
+The user that makes problem is
+
+	uid="341865" user="krautundrueber"
+
+It clashes with
+
+	uid="14181" user="Krautundrueber"
+
+While the user user has a unique id, it seems that the index `users_display_name_idx` on `varchar(255)`, ignores case.
+
+So one has to set case sensitive collation
+
+	...
+	WORD VARCHAR(128) CHARACTER SET utf8 COLLATE utf8_cs
+	...
+
+Unfortunately the Collator `utf8_cs` isn't installed per default, so I tried `utf8_bin`
+
+Setting the default collate didn't help
+
+	CREATE DATABASE IF NOT EXISTS api06_test
+	  DEFAULT CHARACTER SET utf8
+	  DEFAULT COLLATE utf8_bin;
+
+so I also set it expclitly for the `display_name` column
+
+	`display_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
+
+### com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException: Duplicate entry '54750854-4-FIXME' for key 'PRIMARY' ###
+
+After fixing the character set on the user names, the same error happens on the tags for the ways
+
+	Caused by: com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException: Duplicate entry '54750854-4-FIXME' for key 'PRIMARY'
+		at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+		at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+		at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+		at java.lang.reflect.Constructor.newInstance(Constructor.java:525)
+		at com.mysql.jdbc.Util.handleNewInstance(Util.java:411)
+		at com.mysql.jdbc.Util.getInstance(Util.java:386)
+		at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:1040)
+		at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:4074)
+		at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:4006)
+		at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:2468)
+		at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2629)
+		at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2719)
+		at com.mysql.jdbc.PreparedStatement.executeInternal(PreparedStatement.java:2155)
+		at com.mysql.jdbc.PreparedStatement.executeUpdate(PreparedStatement.java:2450)
+		at com.mysql.jdbc.PreparedStatement.executeUpdate(PreparedStatement.java:2371)
+		at com.mysql.jdbc.PreparedStatement.executeUpdate(PreparedStatement.java:2355)
+		at org.openstreetmap.osmosis.apidb.v0_6.ApidbWriter.flushWayTags(ApidbWriter.java:724)
+		... 20 more
+
+This is because some tags are called `FIXME` and some are `fixme`.
+
+So set the collation for the keys in `way_tags`
+
+	...
+	`k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+	...
+
+While were at it do the same for `node_tags`
+
+	...
+	`k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
+	...
+
+and `relation_tags`
+
+	...
+	`k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
+	...
+
+and `current_relation_tags`
+
+	...
+	`k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
+	...
+
+and `changeset_tags`
+
+	...
+	`k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
+	...
+
+and `current_node_tags`
+
+	...
+	`k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+	...
+
+and `current_way_tags`
+
+	...
+	`k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
+	...
+
+and `user_preferences`
+
+	...
+	`k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+	...

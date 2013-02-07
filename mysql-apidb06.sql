@@ -18,7 +18,9 @@
 -- Create schema api06_test
 --
 
-CREATE DATABASE IF NOT EXISTS api06_test;
+CREATE DATABASE IF NOT EXISTS api06_test
+  DEFAULT CHARACTER SET utf8
+  DEFAULT COLLATE utf8_bin;
 USE api06_test;
 
 --
@@ -30,7 +32,7 @@ CREATE TABLE  `api06_test`.`acls` (
   `id` int(11) NOT NULL auto_increment,
   `address` int(10) unsigned NOT NULL,
   `netmask` int(10) unsigned NOT NULL,
-  `k` varchar(255) NOT NULL,
+  `k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `v` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
   KEY `acls_k_idx` (`k`)
@@ -53,7 +55,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `api06_test`.`changeset_tags`;
 CREATE TABLE  `api06_test`.`changeset_tags` (
   `changeset_id` bigint(64) NOT NULL,
-  `k` varchar(255) NOT NULL default '',
+  `k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
   KEY `changeset_tags_id_idx` (`changeset_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -103,7 +105,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `api06_test`.`current_node_tags`;
 CREATE TABLE  `api06_test`.`current_node_tags` (
   `node_id` bigint(64) NOT NULL,
-  `k` varchar(255) NOT NULL default '',
+  `k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`node_id`,`k`),
   CONSTRAINT `current_node_tags_ibfk_1` FOREIGN KEY (`node_id`) REFERENCES `current_nodes` (`id`)
@@ -183,7 +185,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `api06_test`.`current_relation_tags`;
 CREATE TABLE  `api06_test`.`current_relation_tags` (
   `id` bigint(64) NOT NULL,
-  `k` varchar(255) NOT NULL default '',
+  `k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`,`k`),
   CONSTRAINT `current_relation_tags_ibfk_1` FOREIGN KEY (`id`) REFERENCES `current_relations` (`id`)
@@ -258,7 +260,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `api06_test`.`current_way_tags`;
 CREATE TABLE  `api06_test`.`current_way_tags` (
   `way_id` bigint(64) NOT NULL,
-  `k` varchar(255) NOT NULL default '',
+  `k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`way_id`,`k`),
   CONSTRAINT `current_way_tags_ibfk_1` FOREIGN KEY (`way_id`) REFERENCES `current_ways` (`id`)
@@ -498,7 +500,7 @@ DROP TABLE IF EXISTS `api06_test`.`node_tags`;
 CREATE TABLE  `api06_test`.`node_tags` (
   `node_id` bigint(64) NOT NULL,
   `version` bigint(20) NOT NULL,
-  `k` varchar(255) NOT NULL default '',
+  `k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`node_id`,`version`,`k`),
   CONSTRAINT `node_tags_ibfk_1` FOREIGN KEY (`node_id`, `version`) REFERENCES `nodes` (`node_id`, `version`)
@@ -579,7 +581,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `api06_test`.`relation_tags`;
 CREATE TABLE  `api06_test`.`relation_tags` (
   `relation_id` bigint(64) NOT NULL default '0',
-  `k` varchar(255) NOT NULL default '',
+  `k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
   `v` varchar(255) NOT NULL default '',
   `version` bigint(20) NOT NULL,
   PRIMARY KEY  (`relation_id`,`version`,`k`),
@@ -700,7 +702,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `api06_test`.`user_preferences`;
 CREATE TABLE  `api06_test`.`user_preferences` (
   `user_id` bigint(20) NOT NULL,
-  `k` varchar(255) NOT NULL,
+  `k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `v` varchar(255) NOT NULL,
   PRIMARY KEY  (`user_id`,`k`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -751,7 +753,7 @@ CREATE TABLE  `api06_test`.`users` (
   `active` int(11) NOT NULL default '0',
   `pass_crypt` varchar(255) NOT NULL,
   `creation_time` datetime NOT NULL,
-  `display_name` varchar(255) NOT NULL default '',
+  `display_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL default '',
   `data_public` tinyint(1) NOT NULL default '0',
   `description` text NOT NULL,
   `home_lat` double default NULL,
@@ -812,7 +814,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `api06_test`.`way_tags`;
 CREATE TABLE  `api06_test`.`way_tags` (
   `way_id` bigint(64) NOT NULL default '0',
-  `k` varchar(255) NOT NULL,
+  `k` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `v` varchar(255) NOT NULL,
   `version` bigint(20) NOT NULL,
   PRIMARY KEY  (`way_id`,`version`,`k`),
