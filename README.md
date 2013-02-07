@@ -373,3 +373,7 @@ Adter fixing the collation errors I got
 		... 4 more
 
 This is inline with the schema changes prefixing the `id` fields with the type. I forgot those the first time around.
+
+### INFO: Total execution time: 87535 milliseconds. ###
+
+Woohoo!
