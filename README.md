@@ -1,6 +1,6 @@
 # README #
 
-This project enables the use of [Osmosis](http://wiki.openstreetmap.org/wiki/Osmosis) ([Github](https://github.com/openstreetmap/osmosis)) to import (an extract of) the [planet.osm](http://wiki.openstreetmap.org/wiki/Planet.osm) into a MySQL database.
+This project enables the use of [Osmosis](http://wiki.openstreetmap.org/wiki/Osmosis) ([Github](https://github.com/openstreetmap/osmosis)) to import (an extract of) the [planet.osm](http://wiki.openstreetmap.org/wiki/Planet.osm) using OSM 0.6 API into a MySQL database.
 
 The support officially has been dropped, but I needed a MySQL compatible representation of the data.
 
