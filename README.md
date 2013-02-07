@@ -38,3 +38,24 @@ Create the schema using the sql script
 Read data and populate database
 
 	osmosis --read-xml file="bremen.osm.bz2" --write-apidb-0.6 host="127.0.0.1" dbType="mysql" database="api06_test" user="osm" password="osm" validateSchemaVersion=no
+
+## Usage ##
+
+Return all main streets in a bounding box
+
+	select w.`id`, w.sequence_id, latitude, longitude, t1.v as name, t2.v as type
+	from current_way_nodes w, current_nodes n, current_way_tags t1, current_way_tags t2
+	where w.`node_id` = n.`id`
+	and w.`id` = t1.`way_id`
+	and w.`id` = t2.`way_id`
+	and t1.k = 'name'
+	and t1.v <>  ''
+	and t2.k = 'highway'
+	and t2.v in ('primary', 'secondary', 'tertiary', 'motorway', 'residential', 'road', 'track', 'trunk')
+	and n.latitude > 53 * 10000000
+	and n.latitude < 54 * 10000000
+	and n.longitude > 8 * 10000000
+	and n.longitude < 9 * 10000000
+	order by w.`id` asc, w.sequence_id asc;
+
+OSM uses Fixed Precision Integer for the geographical location. Instead of persisting `53,0749415` as a floating point number in the database, it will be persisted as `530749415`. The precision of the floating point number is [defined](http://wiki.openstreetmap.org/wiki/Node#Structure) as `7` decimal places, so you have to multiply or divide with `10^7`.
